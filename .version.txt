@@ -1,0 +1,8 @@
+# Kora version file
+echo "v1.0.1" > .version
+echo "v1.0.0" > .current_version  # Iyi izajyana na app
+
+# Ongera kuri Git
+git add .version .current_version
+git commit -m "Add version files for auto-update"
+git push

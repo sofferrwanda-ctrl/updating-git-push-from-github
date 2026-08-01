@@ -1,4 +1,4 @@
-# git_manager_app.py - v2.4.0 (Seamless Hidden Auto-Update)
+# git_manager_app.py - v2.4.1 (Updated About Us)
 
 import sys
 import os
@@ -75,7 +75,6 @@ class GitManagerApp(QMainWindow):
         header_layout.addWidget(header)
         header_layout.addStretch()
         
-        # Buto ya Update izajya yaka umutuku iyo hari update
         self.update_btn_header = QPushButton("🔄 Checking updates...")
         self.update_btn_header.setStyleSheet("""
             QPushButton {
@@ -176,7 +175,6 @@ class GitManagerApp(QMainWindow):
             pass
     
     def background_check_updates(self):
-        # Igenzura niba hari update mu buryo bwa background ntiyereke user aho iva
         raw_url = "https://raw.githubusercontent.com/sofferrwanda-ctrl/updating-git-push-from-github/main/hello.py"
         try:
             req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -185,16 +183,12 @@ class GitManagerApp(QMainWindow):
             
             if remote_code and "def " in remote_code:
                 self.remote_code_content = remote_code
-                
-                # Tugereranye niba code yarahindutse cyangwa niba dufite nshya
                 current_file_path = os.path.abspath(__file__)
                 with open(current_file_path, "r", encoding="utf-8") as f:
                     local_code = f.read()
                 
-                # Niba code zitandukanye cyangwa hari izindi nshya zishyizweho
                 if remote_code.strip() != local_code.strip() and "GitManagerApp" in remote_code:
                     self.update_available = True
-                    # Hindura buto ibe UMUTUKU (Red Alert) nk'uko wabisabye
                     self.update_btn_header.setText("🚨 New Update Available!")
                     self.update_btn_header.setEnabled(True)
                     self.update_btn_header.setStyleSheet("""
@@ -226,7 +220,6 @@ class GitManagerApp(QMainWindow):
                 QMessageBox.information(self, "No Updates", "Porogaramu yawe igezweho rwose (Up to date)!")
                 return
         
-        # Iyo user ayikanzeho, ikora download yihuse maze igasaba Restart
         self.update_btn_header.setEnabled(False)
         self.update_btn_header.setText("⏳ Downloading...")
         self.status_bar.showMessage("🔄 Gukurura update...")
@@ -249,7 +242,6 @@ class GitManagerApp(QMainWindow):
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec()
             
-            # Guhagarika app kugira ngo user ayifungure bundi bushya cyangwa ikore restart
             sys.exit(0)
             
         except Exception as e:
@@ -706,7 +698,20 @@ class GitManagerApp(QMainWindow):
             self.push_progress.hide()
     
     def show_about(self):
-        QMessageBox.information(self, "About", "Git Manager Pro v2.4.0\nDeveloper: Niyibizi Kevin\nTheme: GitHub Dark Mode 🌑\nAuto-Update Ready ✅")
+        # Aho About Us yavuguruwe igashyirwamo link ya Portfolio
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("About Git Manager Pro")
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setText(
+            "<b>Git Manager Pro v2.4.1</b><br>"
+            "Developer: Niyibizi Kevin<br>"
+            "Theme: GitHub Dark Mode 🌑<br><br>"
+            "Visit Developer Portfolio:<br>"
+            "<a href='https://niyibizi_kevin.netlify.app' style='color: #58a6ff;'>niyibizi_kevin.netlify.app</a>"
+        )
+        msg_box.setTextFormat(Qt.RichText)
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.exec()
     
     def btn_style(self, color, font_size=14):
         return f"""

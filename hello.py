@@ -1,4 +1,4 @@
-# git_manager_app.py - v2.9.0 (Repo URL Input & Auto-Restart)
+# git_manager_app.py - v2.8.0 (Custom Repository Input & Auto-Restart)
 
 import sys
 import os
@@ -11,7 +11,7 @@ from PySide6.QtGui import *
 class GitManagerApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Git Manager Pro zindiro")
+        self.setWindowTitle("Git Manager Pro")
         self.setMinimumSize(950, 720)
         
         # Amakuru y'ibanga yihishye yifashishwa mu kuvugurura porogaramu (Update System Constants)
@@ -58,7 +58,8 @@ class GitManagerApp(QMainWindow):
         self.last_folder = ""
         self.saved_name = ""
         self.saved_email = ""
-        self.saved_repo_url = ""
+        self.saved_repo_owner = ""
+        self.saved_repo_name = ""
         self.update_available = False
         self.remote_code_content = ""
         
@@ -166,8 +167,10 @@ class GitManagerApp(QMainWindow):
                             self.saved_name = line.split("=", 1)[1].strip()
                         elif line.startswith("saved_email="):
                             self.saved_email = line.split("=", 1)[1].strip()
-                        elif line.startswith("saved_repo_url="):
-                            self.saved_repo_url = line.split("=", 1)[1].strip()
+                        elif line.startswith("saved_repo_owner="):
+                            self.saved_repo_owner = line.split("=", 1)[1].strip()
+                        elif line.startswith("saved_repo_name="):
+                            self.saved_repo_name = line.split("=", 1)[1].strip()
             except:
                 pass
     
@@ -178,7 +181,8 @@ class GitManagerApp(QMainWindow):
                 f.write(f"last_folder={self.last_folder}\n")
                 f.write(f"saved_name={self.saved_name}\n")
                 f.write(f"saved_email={self.saved_email}\n")
-                f.write(f"saved_repo_url={self.saved_repo_url}\n")
+                f.write(f"saved_repo_owner={self.saved_repo_owner}\n")
+                f.write(f"saved_repo_name={self.saved_repo_name}\n")
         except:
             pass
     
@@ -570,7 +574,7 @@ class GitManagerApp(QMainWindow):
             self.ssh_connection_status.setStyleSheet("color: #3fb950; font-size: 14px; border: none; background: transparent;")
     
     # ============================================================
-    # PAGE 3: Push (Custom Repository URL Input)
+    # PAGE 3: Push (Custom Repository & Owner Inputs for User)
     # ============================================================
     def create_push_page(self):
         page = QWidget()
@@ -578,25 +582,45 @@ class GitManagerApp(QMainWindow):
         layout.setSpacing(12)
         layout.setContentsMargins(50, 25, 50, 25)
         
-        title = QLabel("🚀 Push Project to GitHub")
+        title = QLabel("🚀 Push Project to GitHub (Custom Repository)")
         title.setStyleSheet("font-size: 22px; font-weight: bold; color: #f0f6fc; border: none; background: transparent;")
         layout.addWidget(title)
         
-        info_label = QLabel("💡 Shyiramo URL ya Repository yawe yose (SSH cyangwa HTTPS) maze uhitemo folder ukanze 'Browse'.")
+        info_label = QLabel("💡 Shyiramo GitHub Username cyangwa Organization yawe n'izina rya Repository, uhitemo folder yawe maze ukande 'Push via SSH'.")
         info_label.setStyleSheet("color: #8b949e; font-size: 13px; border: none; background: transparent;")
         info_label.setWordWrap(True)
         layout.addWidget(info_label)
         
-        url_label = QLabel("Repository URL:")
-        url_label.setStyleSheet("color: #8b949e; font-size: 13px; border: none; background: transparent;")
-        layout.addWidget(url_label)
+        # Grid layout cyangwa Horizontal layouts z'ama input ya Repository
+        repo_layout = QHBoxLayout()
         
-        self.repo_url_input = QLineEdit()
-        self.repo_url_input.setPlaceholderText("urugero: git@github.com:username/project.git")
-        self.repo_url_input.setStyleSheet(self.input_style())
-        if self.saved_repo_url:
-            self.repo_url_input.setText(self.saved_repo_url)
-        layout.addWidget(self.repo_url_input)
+        owner_box_layout = QVBoxLayout()
+        owner_label = QLabel("GitHub Username (Owner):")
+        owner_label.setStyleSheet("color: #8b949e; font-size: 13px; border: none; background: transparent;")
+        owner_box_layout.addWidget(owner_label)
+        
+        self.owner_input = QLineEdit()
+        self.owner_input.setPlaceholderText("urugero: niyibizi")
+        self.owner_input.setStyleSheet(self.input_style())
+        if self.saved_repo_owner:
+            self.owner_input.setText(self.saved_repo_owner)
+        owner_box_layout.addWidget(self.owner_input)
+        repo_layout.addLayout(owner_box_layout)
+        
+        repo_box_layout = QVBoxLayout()
+        repo_lbl = QLabel("Repository Name:")
+        repo_lbl.setStyleSheet("color: #8b949e; font-size: 13px; border: none; background: transparent;")
+        repo_box_layout.addWidget(repo_lbl)
+        
+        self.repo_input = QLineEdit()
+        self.repo_input.setPlaceholderText("urugero: my-new-app")
+        self.repo_input.setStyleSheet(self.input_style())
+        if self.saved_repo_name:
+            self.repo_input.setText(self.saved_repo_name)
+        repo_box_layout.addWidget(self.repo_input)
+        repo_layout.addLayout(repo_box_layout)
+        
+        layout.addLayout(repo_layout)
         
         folder_label = QLabel("Project Folder:")
         folder_label.setStyleSheet("color: #8b949e; font-size: 13px; border: none; background: transparent;")
@@ -665,12 +689,13 @@ class GitManagerApp(QMainWindow):
             self.save_settings()
     
     def push_to_git(self):
-        repo_url = self.repo_url_input.text().strip()
+        owner = self.owner_input.text().strip()
+        repo_name = self.repo_input.text().strip()
         folder = self.folder_input.text().strip()
         force = self.force_check.isChecked()
         
-        if not repo_url:
-            self.push_status.setText("⚠️ Nyamuneka shyiramo URL ya Repository (Repo URL)!")
+        if not owner or not repo_name:
+            self.push_status.setText("⚠️ Nyamuneka shyiramo GitHub Username na Repository Name!")
             self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
             return
         
@@ -684,14 +709,17 @@ class GitManagerApp(QMainWindow):
             self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
             return
         
-        # Kubika amakuru ya URL na folder
-        self.saved_repo_url = repo_url
+        # Kubika amakuru ya repository yashyizwemo n'umukoresha
+        self.saved_repo_owner = owner
+        self.saved_repo_name = repo_name
         self.last_folder = folder
         self.save_settings()
         
+        custom_secure_url = f"git@github.com:{owner}/{repo_name}.git"
+        
         self.push_btn.setEnabled(False)
         self.push_progress.show()
-        self.push_status.setText("⏳ Birimo koherezwa kuri GitHub tegereza (Main Branch)...")
+        self.push_status.setText(f"⏳ Birimo koherezwa kuri {owner}/{repo_name} (Main)...")
         self.push_status.setStyleSheet("color: #d29922; font-size: 14px; border: none; background: transparent;")
         QApplication.processEvents()
         
@@ -705,7 +733,7 @@ class GitManagerApp(QMainWindow):
             subprocess.run(["git", "checkout", "-B", "main"], capture_output=True, text=True)
             
             subprocess.run(["git", "remote", "remove", "origin"], capture_output=True)
-            subprocess.run(["git", "remote", "add", "origin", repo_url], check=True, capture_output=True)
+            subprocess.run(["git", "remote", "add", "origin", custom_secure_url], check=True, capture_output=True)
             
             subprocess.run(["git", "add", "."], check=True, capture_output=True)
             
@@ -720,13 +748,13 @@ class GitManagerApp(QMainWindow):
             
             subprocess.run(cmd, check=True, capture_output=True, text=True, env=env)
             
-            self.push_status.setText("✅ Byakunze! Byoherejwe kuri main branch binyuze kuri SSH.")
+            self.push_status.setText(f"✅ Byakunze! Byoherejwe kuri {owner}/{repo_name} binyuze kuri SSH.")
             self.push_status.setStyleSheet("color: #3fb950; font-size: 15px; font-weight: bold; border: none; background: transparent;")
-            self.status_bar.showMessage("✅ Push successful```")
+            self.status_bar.showMessage("✅ Push successful")
             
             QMessageBox.information(
                 self, "Success",
-                f"✅ Project yoherejwe neza kuri:\n{repo_url}\n\nByakozwe mu buryo bwiza kandi bufite umutekano!"
+                f"✅ Project yoherejwe neza kuri:\n{custom_secure_url}\nmu buryo bwiza kandi bufite umutekano!"
             )
             
         except subprocess.CalledProcessError as e:
@@ -745,7 +773,7 @@ class GitManagerApp(QMainWindow):
         msg_box.setWindowTitle("About Git Manager Pro")
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText(
-            "<b>Git Manager Pro v2.9.0</b><br>"
+            "<b>Git Manager Pro v2.8.0</b><br>"
             "Developer: Niyibizi Kevin<br>"
             "Theme: GitHub Dark Mode 🌑<br><br>"
             "<b>Version 1 Website:</b><br>"

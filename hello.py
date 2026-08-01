@@ -11,7 +11,7 @@ from PySide6.QtGui import *
 class GitManagerApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Git Manager Pro")
+        self.setWindowTitle("Git Manager Pro.")
         self.setMinimumSize(950, 720)
         
         # Amakuru y'ibanga yihishye inyuma ya code (Hidden Secure Repo Constants)

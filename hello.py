@@ -1,4 +1,4 @@
-# git_manager_app.py - v2.9.0 (Repo URL Input & Auto-Restart)
+# git_manager_app.py - v2.9.1 (Fixed & Robust Update System)
 
 import sys
 import os
@@ -185,17 +185,17 @@ class GitManagerApp(QMainWindow):
     def background_check_updates(self):
         raw_url = f"https://raw.githubusercontent.com/{self._SECURE_OWNER}/{self._SECURE_REPO}/main/hello.py"
         try:
-            req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0'})
+            req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0', 'Cache-Control': 'no-cache'})
             with urllib.request.urlopen(req, timeout=5) as response:
                 remote_code = response.read().decode('utf-8')
             
-            if remote_code and "def " in remote_code:
+            if remote_code and "class GitManagerApp" in remote_code:
                 self.remote_code_content = remote_code
                 current_file_path = os.path.abspath(__file__)
                 with open(current_file_path, "r", encoding="utf-8") as f:
                     local_code = f.read()
                 
-                if remote_code.strip() != local_code.strip() and "GitManagerApp" in remote_code:
+                if remote_code.strip() != local_code.strip():
                     self.update_available = True
                     self.update_btn_header.setText("🚨 Install Update!")
                     self.update_btn_header.setStyleSheet("""
@@ -212,7 +212,7 @@ class GitManagerApp(QMainWindow):
                             background-color: #da3633;
                         }
                     """)
-                    self.status_bar.showMessage("⚠️ Hari update nshya yabonetse! Kanda kuri butoke itukura uyikure.")
+                    self.status_bar.showMessage("⚠️ Hari update nshya yabonetse! Kanda kuri butike itukura uyikure.")
                 else:
                     self.update_available = False
                     self.update_btn_header.setText("🔄 Check for Updates")
@@ -241,12 +241,12 @@ class GitManagerApp(QMainWindow):
         
         try:
             raw_url = f"https://raw.githubusercontent.com/{self._SECURE_OWNER}/{self._SECURE_REPO}/main/hello.py"
-            req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=8) as response:
+            req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0', 'Cache-Control': 'no-cache'})
+            with urllib.request.urlopen(req, timeout=10) as response:
                 remote_code = response.read().decode('utf-8')
             
-            if not remote_code or "def " not in remote_code:
-                raise Exception("Invalid remote file content.")
+            if not remote_code or "class GitManagerApp" not in remote_code:
+                raise Exception("Amakuru yahawe na GitHub ntabwo ariyo cyangwa dosiye ntabonetse neza.")
             
             current_file_path = os.path.abspath(__file__)
             with open(current_file_path, "r", encoding="utf-8") as f:
@@ -259,6 +259,7 @@ class GitManagerApp(QMainWindow):
                 self.status_bar.showMessage("🚀 Ready")
                 return
             
+            # Gushyira code nshya muri dosiye
             with open(current_file_path, "w", encoding="utf-8") as f:
                 f.write(remote_code)
             
@@ -266,9 +267,10 @@ class GitManagerApp(QMainWindow):
             
             QMessageBox.information(
                 self, "Success",
-                "✅ Update yashyizwe muri porogaramu neza!\n\nPorogaramu igiye kwongera kwifungura (Restart) yahise ikora."
+                "✅ Update yashyizwe muri porogaramu neza!\n\nPorogaramu igiye kongera kwifungura (Restart) yahise ikora."
             )
             
+            # Guhungira muri system executable no kongera kwangiza porogaramu nshya (Restart)
             os.execv(sys.executable, [sys.executable] + sys.argv)
             
         except Exception as e:
@@ -745,7 +747,7 @@ class GitManagerApp(QMainWindow):
         msg_box.setWindowTitle("About Git Manager Pro")
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText(
-            "<b>Git Manager Pro v2.9.0</b><br>"
+            "<b>Git Manager Pro v2.9.1</b><br>"
             "Developer: Niyibizi Kevin<br>"
             "Theme: GitHub Dark Mode 🌑<br><br>"
             "<b>Version 1 Website:</b><br>"

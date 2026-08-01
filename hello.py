@@ -1,4 +1,4 @@
-# git_manager_app.py - v2.6.0 (Auto-Restart & Hidden Secure Repo)
+# git_manager_app.py - v2.7.0 (Ready Update Button & Auto-Restart)
 
 import sys
 import os
@@ -79,22 +79,23 @@ class GitManagerApp(QMainWindow):
         header_layout.addWidget(header)
         header_layout.addStretch()
         
-        self.update_btn_header = QPushButton("🔄 Checking updates...")
+        # Buto ya update yahinduwe ikaba Active buri gihe (Ready)
+        self.update_btn_header = QPushButton("🔄 Check for Updates")
         self.update_btn_header.setStyleSheet("""
             QPushButton {
-                background-color: #21262d;
-                color: #c9d1d9;
+                background-color: #1f6feb;
+                color: #ffffff;
                 font-size: 13px;
                 padding: 6px 16px;
-                border: 1px solid #30363d;
+                border: 1px solid #388bfd;
                 border-radius: 6px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #30363d;
+                background-color: #388bfd;
             }
         """)
-        self.update_btn_header.setEnabled(False)
+        self.update_btn_header.setEnabled(True)
         self.update_btn_header.clicked.connect(self.handle_update_action)
         header_layout.addWidget(self.update_btn_header)
         
@@ -193,8 +194,7 @@ class GitManagerApp(QMainWindow):
                 
                 if remote_code.strip() != local_code.strip() and "GitManagerApp" in remote_code:
                     self.update_available = True
-                    self.update_btn_header.setText("🚨 New Update Available!")
-                    self.update_btn_header.setEnabled(True)
+                    self.update_btn_header.setText("🚨 Install Update!")
                     self.update_btn_header.setStyleSheet("""
                         QPushButton {
                             background-color: #f85149;
@@ -211,31 +211,53 @@ class GitManagerApp(QMainWindow):
                     """)
                     self.status_bar.showMessage("⚠️ Hari update nshya yabonetse! Kanda kuri butoke itukura uyikure.")
                 else:
-                    self.update_btn_header.setText("✅ Up to Date")
-                    self.update_btn_header.setEnabled(False)
+                    self.update_available = False
+                    self.update_btn_header.setText("🔄 Check for Updates")
+                    self.update_btn_header.setStyleSheet("""
+                        QPushButton {
+                            background-color: #1f6feb;
+                            color: #ffffff;
+                            font-size: 13px;
+                            padding: 6px 16px;
+                            border: 1px solid #388bfd;
+                            border-radius: 6px;
+                            font-weight: bold;
+                        }
+                        QPushButton:hover {
+                            background-color: #388bfd;
+                        }
+                    """)
         except:
-            self.update_btn_header.setText("🔄 Check Update")
-            self.update_btn_header.setEnabled(True)
+            pass
 
     def handle_update_action(self):
-        if not self.update_available:
-            self.background_check_updates()
-            if not self.update_available:
-                QMessageBox.information(self, "No Updates", "Porogaramu yawe igezweho rwose (Up to date)!")
-                return
-        
         self.update_btn_header.setEnabled(False)
-        self.update_btn_header.setText("⏳ Downloading...")
-        self.status_bar.showMessage("🔄 Gukurura update...")
+        self.update_btn_header.setText("⏳ Checking/Downloading...")
+        self.status_bar.showMessage("🔄 Gusuzuma cyangwa gukurura update...")
         QApplication.processEvents()
         
         try:
-            if not self.remote_code_content:
-                raise Exception("Update data not loaded.")
+            raw_url = f"https://raw.githubusercontent.com/{self._SECURE_OWNER}/{self._SECURE_REPO}/main/hello.py"
+            req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=8) as response:
+                remote_code = response.read().decode('utf-8')
+            
+            if not remote_code or "def " not in remote_code:
+                raise Exception("Invalid remote file content.")
             
             current_file_path = os.path.abspath(__file__)
+            with open(current_file_path, "r", encoding="utf-8") as f:
+                local_code = f.read()
+            
+            if remote_code.strip() == local_code.strip():
+                QMessageBox.information(self, "Up to Date", "✅ Porogaramu yawe igezweho rwose! Nta update nshya ihari.")
+                self.update_btn_header.setEnabled(True)
+                self.update_btn_header.setText("🔄 Check for Updates")
+                self.status_bar.showMessage("🚀 Ready")
+                return
+            
             with open(current_file_path, "w", encoding="utf-8") as f:
-                f.write(self.remote_code_content)
+                f.write(remote_code)
             
             self.status_bar.showMessage("✅ Update irangiye neza! Irimo kwongera kwitangira...")
             
@@ -249,8 +271,9 @@ class GitManagerApp(QMainWindow):
             
         except Exception as e:
             self.update_btn_header.setEnabled(True)
-            self.update_btn_header.setText("🚨 New Update Available!")
-            QMessageBox.warning(self, "Update Error", f"Ntibyashobotse gushyira mu bikorwa update:\n{str(e)}")
+            self.update_btn_header.setText("🔄 Check for Updates")
+            QMessageBox.warning(self, "Update Error", f"Ntibyashobotse kubona cyangwa gushyira mu bikorwa update:\n{str(e)}")
+            self.status_bar.showMessage("❌ Update Failed")
 
     # ============================================================
     # PAGE 0: Git Check
@@ -644,7 +667,7 @@ class GitManagerApp(QMainWindow):
         
         secure_url = f"git@github.com:{self._SECURE_OWNER}/{self._SECURE_REPO}.git"
         
-        self.push_btn.setEnabled(Float_disabled := False) # type: ignore
+        self.push_btn.setEnabled(False)
         self.push_progress.show()
         self.push_status.setText("⏳ Birimo koherezwa kuri GitHub (Main Branch)...")
         self.push_status.setStyleSheet("color: #d29922; font-size: 14px; border: none; background: transparent;")
@@ -702,9 +725,11 @@ class GitManagerApp(QMainWindow):
         msg_box.setWindowTitle("About Git Manager Pro")
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText(
-            "<b>Git Manager Pro v2.6.0</b><br>"
+            "<b>Git Manager Pro v2.7.0</b><br>"
             "Developer: Niyibizi Kevin<br>"
             "Theme: GitHub Dark Mode 🌑<br><br>"
+            "<b>Version 1 Website:</b><br>"
+            "<a href='https://gitpushe.netlify.app' style='color: #58a6ff;'>gitpushe.netlify.app</a><br><br>"
             "Visit Developer Portfolio:<br>"
             "<a href='https://niyibizi_kevin.netlify.app' style='color: #58a6ff;'>niyibizi_kevin.netlify.app</a>"
         )

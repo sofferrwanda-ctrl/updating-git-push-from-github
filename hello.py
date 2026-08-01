@@ -691,7 +691,7 @@ class GitManagerApp(QMainWindow):
         
         self.push_btn.setEnabled(False)
         self.push_progress.show()
-        self.push_status.setText("⏳ Birimo koherezwa kuri GitHub (Main Branch)...")
+        self.push_status.setText("⏳ Birimo koherezwa kuri GitHub tegereza (Main Branch)...")
         self.push_status.setStyleSheet("color: #d29922; font-size: 14px; border: none; background: transparent;")
         QApplication.processEvents()
         
@@ -722,7 +722,7 @@ class GitManagerApp(QMainWindow):
             
             self.push_status.setText("✅ Byakunze! Byoherejwe kuri main branch binyuze kuri SSH.")
             self.push_status.setStyleSheet("color: #3fb950; font-size: 15px; font-weight: bold; border: none; background: transparent;")
-            self.status_bar.showMessage("✅ Push successful")
+            self.status_bar.showMessage("✅ Push successful```")
             
             QMessageBox.information(
                 self, "Success",

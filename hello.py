@@ -11,7 +11,7 @@ from PySide6.QtGui import *
 class GitManagerApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Git Manager Pro.")
+        self.setWindowTitle("Git Manager Pro")
         self.setMinimumSize(950, 720)
         
         # Amakuru y'ibanga yihishye inyuma ya code (Hidden Secure Repo Constants)
@@ -730,6 +730,8 @@ class GitManagerApp(QMainWindow):
             "Theme: GitHub Dark Mode 🌑<br><br>"
             "<b>Version 1 Website:</b><br>"
             "<a href='https://gitpushe.netlify.app' style='color: #58a6ff;'>gitpushe.netlify.app</a><br><br>"
+            "<b>AI Version Website:</b><br>"
+            "<a href='https://ai-version.netlify.app' style='color: #58a6ff;'>ai-version.netlify.app</a><br><br>"
             "Visit Developer Portfolio:<br>"
             "<a href='https://niyibizi_kevin.netlify.app' style='color: #58a6ff;'>niyibizi_kevin.netlify.app</a>"
         )

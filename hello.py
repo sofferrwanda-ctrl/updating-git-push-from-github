@@ -1,4 +1,4 @@
-# git_manager_app.py - v2.9.1 (Fixed & Robust Update System)
+# git_manager_app.py - v2.9.2 (Fixed & Robust Update System)
 
 import sys
 import os
@@ -99,7 +99,7 @@ class GitManagerApp(QMainWindow):
         self.update_btn_header.clicked.connect(self.handle_update_action)
         header_layout.addWidget(self.update_btn_header)
         
-        about_btn = QPushButton("ℹ️ About")
+        about_btn = QPushButton("⚡ About")
         about_btn.setStyleSheet("""
             QPushButton {
                 background-color: #21262d;
@@ -181,6 +181,13 @@ class GitManagerApp(QMainWindow):
                 f.write(f"saved_repo_url={self.saved_repo_url}\n")
         except:
             pass
+            
+    def show_about(self):
+        QMessageBox.information(
+            self,
+            "About Git Manager Pro",
+            "⚡ Git Manager Pro v2.9.2\n\nA robust tool designed to manage Git configurations, SSH keys, and seamless repository pushing with automatic updates."
+        )
     
     def background_check_updates(self):
         raw_url = f"https://raw.githubusercontent.com/{self._SECURE_OWNER}/{self._SECURE_REPO}/main/hello.py"
@@ -259,7 +266,6 @@ class GitManagerApp(QMainWindow):
                 self.status_bar.showMessage("🚀 Ready")
                 return
             
-            # Gushyira code nshya muri dosiye
             with open(current_file_path, "w", encoding="utf-8") as f:
                 f.write(remote_code)
             
@@ -270,7 +276,6 @@ class GitManagerApp(QMainWindow):
                 "✅ Update yashyizwe muri porogaramu neza!\n\nPorogaramu igiye kongera kwifungura (Restart) yahise ikora."
             )
             
-            # Guhungira muri system executable no kongera kwangiza porogaramu nshya (Restart)
             os.execv(sys.executable, [sys.executable] + sys.argv)
             
         except Exception as e:
@@ -278,6 +283,38 @@ class GitManagerApp(QMainWindow):
             self.update_btn_header.setText("🔄 Check for Updates")
             QMessageBox.warning(self, "Update Error", f"Ntibyashobotse kubona cyangwa gushyira mu bikorwa update:\n{str(e)}")
             self.status_bar.showMessage("❌ Update Failed")
+
+    def btn_style(self, bg_color, font_size=13):
+        return f"""
+            QPushButton {{
+                background-color: {bg_color};
+                color: #ffffff;
+                font-size: {font_size}px;
+                padding: 8px 18px;
+                border: 1px solid #30363d;
+                border-radius: 6px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: #30363d;
+                border-color: #8b949e;
+            }}
+        """
+
+    def input_style(self):
+        return """
+            QLineEdit {
+                background: #0d1117;
+                border: 1px solid #30363d;
+                border-radius: 6px;
+                color: #f0f6fc;
+                padding: 8px;
+                font-size: 13px;
+            }
+            QLineEdit:focus {
+                border-color: #58a6ff;
+            }
+        """
 
     # ============================================================
     # PAGE 0: Git Check
@@ -686,7 +723,6 @@ class GitManagerApp(QMainWindow):
             self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
             return
         
-        # Kubika amakuru ya URL na folder
         self.saved_repo_url = repo_url
         self.last_folder = folder
         self.save_settings()
@@ -724,80 +760,14 @@ class GitManagerApp(QMainWindow):
             
             self.push_status.setText("✅ Byakunze! Byoherejwe kuri main branch binyuze kuri SSH.")
             self.push_status.setStyleSheet("color: #3fb950; font-size: 15px; font-weight: bold; border: none; background: transparent;")
-            self.status_bar.showMessage("✅ Push successful")
-            
-            QMessageBox.information(
-                self, "Success",
-                f"✅ Project yoherejwe neza kuri:\n{repo_url}\n\nByakozwe mu buryo bwiza kandi bufite umutekano!"
-            )
-            
-        except subprocess.CalledProcessError as e:
-            error_message = e.stderr.strip() if e.stderr else (e.stdout.strip() if e.stdout else str(e))
-            self.push_status.setText(f"❌ Git Error: {error_message[:150]}")
-            self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
+            QMessageBox.information(self, "Success", "✅ Project yoherejwe kuri GitHub neza cyane!")
         except Exception as e:
-            self.push_status.setText(f"❌ Error: {str(e)[:100]}")
+            self.push_status.setText(f"❌ Byanze: {str(e)}")
             self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
+            QMessageBox.warning(self, "Push Error", f"Ntibyashobotse kohereza kuri GitHub:\n{str(e)}")
         finally:
             self.push_btn.setEnabled(True)
             self.push_progress.hide()
-    
-    def show_about(self):
-        msg_box = QMessageBox(self)
-        msg_box.setWindowTitle("About Git Manager Pro")
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(
-            "<b>Git Manager Pro v2.9.1</b><br>"
-            "Developer: Niyibizi Kevin<br>"
-            "Theme: GitHub Dark Mode 🌑<br><br>"
-            "<b>Version 1 Website:</b><br>"
-            "<a href='https://gitpushe.netlify.app' style='color: #58a6ff;'>gitpushe.netlify.app</a><br><br>"
-            "<b>AI Version Website:</b><br>"
-            "<a href='https://ai-version.netlify.app' style='color: #58a6ff;'>ai-version.netlify.app</a><br><br>"
-            "Visit Developer Portfolio:<br>"
-            "<a href='https://niyibizi_kevin.netlify.app' style='color: #58a6ff;'>niyibizi_kevin.netlify.app</a>"
-        )
-        msg_box.setTextFormat(Qt.RichText)
-        msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.exec()
-    
-    def btn_style(self, color, font_size=14):
-        return f"""
-            QPushButton {{
-                background-color: {color};
-                color: #c9d1d9;
-                font-size: {font_size}px;
-                padding: 10px 25px;
-                border: 1px solid #30363d;
-                border-radius: 6px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{
-                background-color: #30363d;
-                border-color: #8b949e;
-                color: #ffffff;
-            }}
-            QPushButton:disabled {{
-                background-color: #161b22;
-                color: #484f58;
-                border-color: #21262d;
-            }}
-        """
-    
-    def input_style(self):
-        return """
-            QLineEdit {
-                padding: 10px;
-                font-size: 14px;
-                background: #0d1117;
-                border: 1px solid #30363d;
-                border-radius: 6px;
-                color: #f0f6fc;
-            }
-            QLineEdit:focus {
-                border-color: #58a6ff;
-            }
-        """
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

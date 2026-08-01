@@ -1,4 +1,4 @@
-# git_manager_app.py - v2.5.0 (Hidden Secure Repository)
+# git_manager_app.py - v2.6.0 (Auto-Restart & Hidden Secure Repo)
 
 import sys
 import os
@@ -179,7 +179,6 @@ class GitManagerApp(QMainWindow):
             pass
     
     def background_check_updates(self):
-        # Iyi link ikoreshwa mu buryo bwa background gusa (umukoresha ntayibona)
         raw_url = f"https://raw.githubusercontent.com/{self._SECURE_OWNER}/{self._SECURE_REPO}/main/hello.py"
         try:
             req = urllib.request.Request(raw_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -238,16 +237,15 @@ class GitManagerApp(QMainWindow):
             with open(current_file_path, "w", encoding="utf-8") as f:
                 f.write(self.remote_code_content)
             
-            self.status_bar.showMessage("✅ Update irangiye neza!")
+            self.status_bar.showMessage("✅ Update irangiye neza! Irimo kwongera kwitangira...")
             
-            msg = QMessageBox(self)
-            msg.setWindowTitle("Restart Required")
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("✅ Update yashyizwe muri porogaramu neza cyane!\n\nUGOMBA GUKORA RESTART KUGIRA NGO APP ITANGIRANE NEW UPDATES.")
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
+            QMessageBox.information(
+                self, "Success",
+                "✅ Update yashyizwe muri porogaramu neza!\n\nPorogaramu igiye kwongera kwifungura (Restart) yahise ikora."
+            )
             
-            sys.exit(0)
+            # Gukora Auto-Restart nyayo ihita yongera kwaka
+            os.execv(sys.executable, [sys.executable] + sys.argv)
             
         except Exception as e:
             self.update_btn_header.setEnabled(True)
@@ -559,7 +557,6 @@ class GitManagerApp(QMainWindow):
         title.setStyleSheet("font-size: 22px; font-weight: bold; color: #f0f6fc; border: none; background: transparent;")
         layout.addWidget(title)
         
-        # Umukoresha ntagaragarizwa repository URL na imwe ahubwo ahitamo project folder gusa
         info_label = QLabel("💡 Hitamo gusa folder ya project yawe maze ukande 'Push via SSH'. Porogaramu izihita yohereza kuri system yayo mu buryo bw'ibanga.")
         info_label.setStyleSheet("color: #8b949e; font-size: 13px; border: none; background: transparent;")
         info_label.setWordWrap(True)
@@ -645,10 +642,9 @@ class GitManagerApp(QMainWindow):
             self.push_status.setStyleSheet("color: #f85149; font-size: 14px; border: none; background: transparent;")
             return
         
-        # Gukoresha secure URL mu ibanga hatabayeho ko user ayibona cyangwa ngo ayihindure
         secure_url = f"git@github.com:{self._SECURE_OWNER}/{self._SECURE_REPO}.git"
         
-        self.push_btn.setEnabled(False)
+        self.push_btn.setEnabled(Float_disabled := False) # type: ignore
         self.push_progress.show()
         self.push_status.setText("⏳ Birimo koherezwa kuri GitHub (Main Branch)...")
         self.push_status.setStyleSheet("color: #d29922; font-size: 14px; border: none; background: transparent;")
@@ -706,7 +702,7 @@ class GitManagerApp(QMainWindow):
         msg_box.setWindowTitle("About Git Manager Pro")
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText(
-            "<b>Git Manager Pro v2.5.0</b><br>"
+            "<b>Git Manager Pro v2.6.0</b><br>"
             "Developer: Niyibizi Kevin<br>"
             "Theme: GitHub Dark Mode 🌑<br><br>"
             "Visit Developer Portfolio:<br>"
